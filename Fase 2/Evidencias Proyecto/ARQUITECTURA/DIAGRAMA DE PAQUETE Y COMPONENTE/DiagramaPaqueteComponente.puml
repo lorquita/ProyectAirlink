@@ -1,0 +1,256 @@
+@startuml
+title Paquetes AirLink (dominios + capas)
+
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+' ===== Capas =====
+package "UI" as UIp {
+  package "Web" as WebUI
+  package "Admin" as AdminUIp
+}
+
+package "Aplicación (Servicios)" as App {
+  package "UsuariosApp"
+  package "CatalogoApp" <<incluye Terminal/Ruta/Empresa/Equipo>>
+  package "ViajesApp" <<busqueda, pricing>>
+  package "ReservasApp"
+  package "PagosApp"
+  package "TicketFacturaApp"
+  package "NotificacionesApp"
+  package "SoporteApp"
+}
+
+package "Dominio" as Dom {
+  package "UsuariosDom" as UsuariosDom
+  note right of UsuariosDom
+    Usuario, Rol, Sesion,
+    PerfilViajero, Direccion
+  end note
+
+  package "CatalogoDom" as CatalogoDom
+  note right of CatalogoDom
+    Empresa, EmpresaEquipo,
+    Terminal, Ruta, CabinaClase,
+    Tarifa, TipoCategoria
+  end note
+
+  package "ViajesDom" as ViajesDom
+  note right of ViajesDom
+    Viaje, ViajeTramo, Asiento, ViajeTarifa
+  end note
+
+  package "ReservasDom" as ReservasDom
+  note right of ReservasDom
+    Reserva, Pasajero, PasajeroAsiento,
+    Equipaje, ReservaImpuesto, ReservaCupon
+  end note
+
+  package "PagosDom" as PagosDom
+  note right of PagosDom
+    Pago, MetodoPago, EstadoPago
+  end note
+
+  package "TicketingDom" as TicketingDom
+  note right of TicketingDom
+    Ticket, Factura, Impuesto, EstadoTicket
+  end note
+
+  package "PromosDom" as PromosDom
+  note right of PromosDom
+    CuponDescuento, TipoCupon
+  end note
+
+  package "ComunicacionDom" as ComunicacionDom
+  note right of ComunicacionDom
+    Notificacion, TipoNotificacion
+  end note
+
+  package "SoporteDom" as SoporteDom
+  note right of SoporteDom
+    SoporteTicket, Estado
+  end note
+
+  package "AuditoriaDom" as AuditoriaDom
+  note right of AuditoriaDom
+    Auditoria, Favorito, Resena
+  end note
+}
+
+package "Infraestructura" as Infra {
+  package "Persistencia" as Persist <<repositorios>>
+  package "Integraciones" as Integ {
+    package "PasarelaPago"
+    package "EmailSMS"
+    package "PDFService"
+    package "OAuthGoogle"
+  }
+  package "Mensajeria/Jobs" as Jobs
+}
+
+' ===== Dependencias de capas =====
+WebUI --> App
+AdminUIp --> App
+App --> Dom
+Dom --> Persist
+App --> Integ
+App --> Jobs
+@enduml
+
+@startuml
+title Componentes AirLink (backend + integraciones)
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+
+actor Cliente
+actor Admin
+
+rectangle "Frontends" {
+  [Web SPA] as WebFE
+  [Admin UI] as AdminFE
+}
+
+node "Backend AirLink" as Backend {
+  component "API Gateway/HTTP" as API
+
+  ' ===== Servicios y sus interfaces (puertos) =====
+  component "AuthService" as Auth
+  interface IAuthService
+  Auth - IAuthService
+
+  component "CatalogService" as Catalog
+  interface ICatalogQuery
+  Catalog - ICatalogQuery
+
+  component "SearchService" as Search
+  interface ISearch
+  Search - ISearch
+
+  component "BookingService" as Booking
+  interface IBooking
+  Booking - IBooking
+
+  component "PricingService" as Pricing
+  interface IPricing
+  Pricing - IPricing
+
+  component "PaymentService" as Payment
+  interface IPayment
+  Payment - IPayment
+
+  component "TicketingService" as Ticketing
+  interface ITicketing
+  Ticketing - ITicketing
+
+  component "InvoiceService" as Invoice
+  interface IInvoice
+  Invoice - IInvoice
+
+  component "NotificationService" as Notify
+  interface INotifier
+  Notify - INotifier
+
+  component "SupportService" as Support
+  interface ISupport
+  Support - ISupport
+
+  component "UserProfileService" as Profile
+  interface IUserProfile
+  Profile - IUserProfile
+
+  component "AuditService" as Audit
+  interface IAudit
+  Audit - IAudit
+
+  ' ===== Adaptador de repositorios =====
+  component "Repositories" as Repos <<adapter>>
+
+  ' Interfaces de repos (puertos de salida)
+  interface IUserRepo
+  interface IReservaRepo
+  interface IViajeRepo
+  interface IPagoRepo
+  interface ITicketRepo
+  interface IFacturaRepo
+  interface ICatalogRepo
+  interface ICuponRepo
+  interface INotificacionRepo
+  interface ISoporteRepo
+  interface IAuditoriaRepo
+
+  ' Servicios dependen de interfaces de repo
+  Auth ..> IUserRepo
+  Profile ..> IUserRepo
+  Booking ..> IReservaRepo
+  Booking ..> IViajeRepo
+  Pricing ..> IViajeRepo
+  Payment ..> IPagoRepo
+  Ticketing ..> ITicketRepo
+  Invoice ..> IFacturaRepo
+  Catalog ..> ICatalogRepo
+  Search ..> IViajeRepo
+  Notify ..> INotificacionRepo
+  Support ..> ISoporteRepo
+  Audit ..> IAuditoriaRepo
+
+  ' Repos implementan interfaces
+  Repos ..|> IUserRepo
+  Repos ..|> IReservaRepo
+  Repos ..|> IViajeRepo
+  Repos ..|> IPagoRepo
+  Repos ..|> ITicketRepo
+  Repos ..|> IFacturaRepo
+  Repos ..|> ICatalogRepo
+  Repos ..|> ICuponRepo
+  Repos ..|> INotificacionRepo
+  Repos ..|> ISoporteRepo
+  Repos ..|> IAuditoriaRepo
+
+  database "MySQL" as DB
+  Repos --> DB
+
+  ' Mensajería / eventos (asíncrono)
+  component "Messaging / Jobs" as Bus
+  Payment --> Bus : evento PagoAprobado
+  Bus --> Ticketing
+  Bus --> Invoice
+  Bus --> Notify
+}
+
+' ===== Integraciones externas =====
+component "Google OAuth" as ExtOAuth <<external>>
+component "PaymentGateway" as ExtPay <<external>>
+component "PDF Generator" as ExtPDF <<external>>
+component "Email/SMS Provider" as ExtMsg <<external>>
+
+' Front → API
+Cliente --> WebFE
+Admin --> AdminFE
+WebFE --> API
+AdminFE --> API
+
+' API → servicios
+API --> Auth
+API --> Catalog
+API --> Search
+API --> Booking
+API --> Pricing
+API --> Payment
+API --> Ticketing
+API --> Invoice
+API --> Notify
+API --> Support
+API --> Profile
+API --> Audit
+
+' Integraciones
+Auth --> ExtOAuth : OAuth2/OpenID
+Payment --> ExtPay : IPaymentProvider
+Invoice --> ExtPDF : PDF/HTTP
+Notify --> ExtMsg : Email/SMS API
+
+note right of API
+  Valida JWT en cada solicitud
+end note
+@enduml

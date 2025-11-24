@@ -1,0 +1,354 @@
+@startuml
+
+class EstadoPago {
+  +idEstadoPago: int
+  +nombreEstadoPago: string
+}
+
+class EstadoTicket {
+  +idEstadoTicket: int
+  +nombreEstadoTicket: string
+}
+
+class EstadoNotificacion {
+  +idEstadoNotificacion: int
+  +nombreEstadoNotificacion: string
+}
+
+class TipoNotificacion {
+  +idTipoNotificacion: int
+  +nombreTipoNotificacion: string
+}
+
+class TipoTerminal {
+  +idTipoTerminal: int
+  +nombreTipoTerminal: string
+}
+
+class TipoEquipo {
+  +idTipoEquipo: int
+  +nombreTipoEquipo: string
+}
+
+class TipoCupon {
+  +idTipoCupon: int
+  +nombreTipoCupon: string
+}
+
+class Estado {
+  +idEstado: int
+  +nombreEstado: string
+}
+
+class TipoCategoria {
+  +idTipoCategoria: int
+  +nombreTipoCategoria: string
+}
+
+class MetodoPago {
+  +idMetodoPago: int
+  +nombreMetodoPago: string
+  +activo: bool
+}
+
+class Rol {
+  +idRol: int
+  +nombreRol: string
+}
+
+class Usuario {
+  +idUsuario: int
+  +nombreUsuario: string
+  +email: string
+  +contrasena: string
+  +googleId: string
+  +creado: datetime
+}
+
+class PerfilViajero {
+  +idPerfilViajero: int
+  +documento: string
+  +nacionalidad: string
+  +fechaNacimiento: date
+  +frecuenteCodigo: string
+}
+
+class Direccion {
+  +idDireccion: int
+  +linea1: string
+  +linea2: string
+  +ciudad: string
+  +region: string
+  +pais: string
+  +zip: string
+  +predeterminada: bool
+}
+
+class Sesion {
+  +idSesion: int
+  +token: string
+  +ip: string
+  +userAgent: string
+  +expiraEn: datetime
+  +revocada: bool
+}
+
+class Empresa {
+  +idEmpresa: int
+  +nombreEmpresa: string
+  +tipoEmpresa: string
+}
+
+class EmpresaEquipo {
+  +idEquipo: int
+  +modelo: string
+  +matricula: string
+  +capacidad: int
+}
+
+class Terminal {
+  +idTerminal: int
+  +nombreTerminal: string
+  +codigo: string
+  +ciudad: string
+}
+
+class Ruta {
+  +idRuta: int
+  +distanciaKm: decimal
+  +duracionEstimadaMin: int
+  +activo: bool
+}
+
+class CabinaClase {
+  +idCabinaClase: int
+  +nombreCabinaClase: string
+  +prioridad: int
+}
+
+class Tarifa {
+  +idTarifa: int
+  +codigoTarifa: string
+  +nombreTarifa: string
+  +equipaje_incl_kg: int
+  +cambios: bool
+  +reembolsable: bool
+  +condiciones: text
+}
+
+class Viaje {
+  +idViaje: int
+  +salida: datetime
+  +llegada: datetime
+}
+
+class ViajeTramo {
+  +idViajeTramo: int
+  +orden: int
+  +hora_salida: datetime
+  +hora_llegada: datetime
+}
+
+class ViajeTarifa {
+  +idViajeTarifa: int
+  +precio: decimal
+  +moneda: string
+  +cupos: int
+}
+
+class Asiento {
+  +idAsiento: int
+  +numero: string
+}
+
+class Reserva {
+  +idReserva: int
+  +fecha_reserva: datetime
+}
+
+class Pasajero {
+  +idPasajero: int
+  +nombrePasajero: string
+  +apellidoPasajero: string
+  +documento: string
+}
+
+class PasajeroAsiento {
+  +idPasajeroAsiento: int
+  +fecha_seleccion: datetime
+  +cargo_extra: decimal
+}
+
+class Equipaje {
+  +idEquipaje: int
+  +tipo: string
+  +peso_kg: decimal
+  +largo_cm: int
+  +ancho_cm: int
+  +alto_cm: int
+  +cargo_extra: decimal
+}
+
+class Pago {
+  +idPago: int
+  +created_at: datetime
+}
+
+class Ticket {
+  +idTicket: int
+  +numero_ticket: string
+  +created_at: datetime
+}
+
+class Factura {
+  +idFactura: int
+  +numeroFactura: string
+  +razonSocial: string
+  +rucNif: string
+  +direccionFiscal: string
+  +fechaEmision: datetime
+  +moneda: string
+  +montoTotal: decimal
+  +pdfUrl: string
+}
+
+class Impuesto {
+  +idImpuesto: int
+  +nombreImpuesto: string
+  +codigo: string
+  +porcentaje: decimal
+  +fijo_monto: decimal
+  +moneda: string
+}
+
+class ReservaImpuesto {
+  +idReservaImpuesto: int
+  +monto: decimal
+}
+
+class CuponDescuento {
+  +idCuponDescuento: int
+  +codigo: string
+  +valor: decimal
+  +uso_maximo: int
+  +fecha_inicio: date
+  +fecha_fin: date
+  +activo: bool
+}
+
+class ReservaCupon {
+  +idReservaCupon: int
+  +montoAplicado: decimal
+}
+
+class Favorito {
+  +idFavorito: int
+  +alias: string
+  +created_at: datetime
+}
+
+class Resena {
+  +idResena: int
+  +puntaje: int
+  +comentario: text
+  +created_at: datetime
+}
+
+class SoporteTicket {
+  +idSoporteTicket: int
+  +asunto: string
+  +descripcion: text
+  +prioridad: string
+  +created_at: datetime
+}
+
+class Notificacion {
+  +idNotificacion: int
+  +titulo: string
+  +mensaje: text
+  +created_at: datetime
+}
+
+class Auditoria {
+  +idAuditoria: int
+  +entidad: string
+  +idEntidad: int
+  +accion: string
+  +cambios_json: text
+  +created_at: datetime
+}
+
+Rol "1" -- "0..*" Usuario
+
+Usuario "1" -- "0..*" PerfilViajero
+Usuario "1" -- "0..*" Direccion
+Usuario "1" -- "0..*" Sesion
+Usuario "1" -- "0..*" Reserva
+Usuario "1" -- "0..*" Favorito
+Usuario "1" -- "0..*" Resena
+Usuario "1" -- "0..*" SoporteTicket
+Usuario "1" -- "0..*" Notificacion
+Usuario "1" -- "0..*" Auditoria
+
+Empresa "1" -- "0..*" EmpresaEquipo
+Empresa "1" -- "0..*" Resena
+
+TipoEquipo "1" -- "0..*" EmpresaEquipo
+
+TipoTerminal "1" -- "0..*" Terminal
+
+Terminal "1" -- "0..*" Ruta : origen
+Terminal "1" -- "0..*" Ruta : destino
+
+Ruta "1" -- "0..*" Favorito
+
+Ruta "1" -- "0..*" Viaje
+
+EmpresaEquipo "1" -- "0..*" Viaje
+
+Viaje "1" -- "0..*" ViajeTramo
+
+Terminal "1" -- "0..*" ViajeTramo : salida
+Terminal "1" -- "0..*" ViajeTramo : llegada
+
+Viaje "1" -- "0..*" Asiento
+
+CabinaClase "1" -- "0..*" Tarifa
+CabinaClase "1" -- "0..*" Asiento
+
+Viaje "1" -- "0..*" ViajeTarifa
+Tarifa "1" -- "0..*" ViajeTarifa
+
+Viaje "1" -- "0..*" Reserva
+TipoCategoria "1" -- "0..*" Reserva
+
+Reserva "1" -- "1..*" Pasajero
+
+Pasajero "1" -- "0..*" Equipaje
+
+Pasajero "1" -- "0..1" PasajeroAsiento
+Asiento "1" -- "0..1" PasajeroAsiento
+
+Reserva "1" -- "1..*" Pago
+MetodoPago "1" -- "0..*" Pago
+EstadoPago "1" -- "0..*" Pago
+
+Reserva "1" -- "0..*" Ticket
+EstadoTicket "1" -- "0..*" Ticket
+
+Reserva "1" -- "0..*" ReservaImpuesto
+Impuesto "1" -- "0..*" ReservaImpuesto
+
+Reserva "1" -- "0..1" ReservaCupon
+CuponDescuento "1" -- "0..*" ReservaCupon
+TipoCupon "1" -- "0..*" CuponDescuento
+
+Reserva "1" -- "0..1" Factura
+
+Reserva "0..1" -- "0..*" SoporteTicket
+Estado "1" -- "0..*" SoporteTicket
+
+TipoNotificacion "1" -- "0..*" Notificacion
+EstadoNotificacion "1" -- "0..*" Notificacion
+
+@enduml
